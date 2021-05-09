@@ -1,0 +1,8 @@
+opencv-python
+numpy
+matplotlib
+scipy
+scikit-image
+PySimpleGUI
+Pillow
+scikit-fuzzy
