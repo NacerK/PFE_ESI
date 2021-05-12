@@ -35,14 +35,14 @@ def show_segmentation(img,phi,groundtruth,iou,dice):
         ax2.imshow(img, interpolation='nearest', cmap=plt.cm.gray)
         ax2.set_title('Segmentation finale du Level Set')
         for n, contour in enumerate(contours):
-            ax2.plot(contour[:, 1], contour[:, 0], linewidth=1)
-            ax1.plot(contour[:, 1], contour[:, 0], linewidth=1)
+            ax2.plot(contour[:, 1], contour[:, 0], linewidth=1.5, color="#4b9fde")
+            ax1.plot(contour[:, 1], contour[:, 0], linewidth=1.5, color="#4b9fde")
     else:
         ax2 = fig.add_subplot(1, 1, 1)
         ax2.set_title('Segmentation finale du Level Set')
         ax2.imshow(img, interpolation='nearest', cmap=plt.cm.gray)
         for n, contour in enumerate(contours):
-            ax2.plot(contour[:, 1], contour[:, 0], linewidth=1)
+            ax2.plot(contour[:, 1], contour[:, 0], linewidth=1.5)
 
     plt.show()
 
@@ -53,7 +53,7 @@ def show_evolution(img,phi,figure):
     ax3.set_title('Evolution de la segmentation par Level Set')
     ax3.imshow(img, interpolation='nearest', cmap=plt.cm.gray)
     for n, contour in enumerate(contours):
-        ax3.plot(contour[:, 1], contour[:, 0], linewidth=1)
+        ax3.plot(contour[:, 1], contour[:, 0], linewidth=1.5, color="#4b9fde")
 
 #Ancienne fonction pour afficher le Levelset sur la GUI PysimpleGUI
 def show_evolution_gui(img,phi,window):

@@ -44,12 +44,12 @@ layout = [
           [sg.Frame('Initialisation' ,  layout=[
 
               [sg.Frame('Pre-traitement',  layout=[
-                  [sg.Text('CLAHE', size=(15, 1)), sg.In(default_text='2', size=(10, 1), key="-CLAHE-")],
+                  [sg.Text('CLAHE', size=(15, 1)), sg.In(default_text='3', size=(10, 1), key="-CLAHE-")],
                   [sg.Text('Filtre Gaussien', size=(15, 1)), sg.In(default_text='2', size=(10, 1), key="-Gauss-")],
                   [sg.Text('Kernel de dilatation', size=(15, 1)),
                    sg.In(default_text='3', size=(10, 1), key="-KerDil-")],
                   [sg.Text('Iterations de dilatation', size=(15, 1)),
-                   sg.In(default_text='3', size=(10, 1), key="-IterDil-")],
+                   sg.In(default_text='4', size=(10, 1), key="-IterDil-")],
               ])],
 
               [sg.Frame('Parametres FCM', layout=[
@@ -64,14 +64,14 @@ layout = [
                    sg.In(default_text='0.1', size=(10, 1), key="-SEUILFCM-")]])],
 
               [sg.Frame('Parametres Levelset', layout=[
-                  [sg.Text('Timestep', size=(15, 1)), sg.In(default_text='-1', size=(10, 1), key="-TIMESTEP-")],
+                  [sg.Text('Timestep', size=(15, 1)), sg.In(default_text='1', size=(10, 1), key="-TIMESTEP-")],
                   [sg.Text('Iterations maximale', size=(15, 1)),
                    sg.In(default_text='100', size=(10, 1), key="-ITERLS-")],
-                  [sg.Text('Alpha', size=(15, 1)), sg.In(default_text='4', size=(10, 1), key="-ALPHA-")],
-                  [sg.Text('Lamda', size=(15, 1)), sg.In(default_text='2', size=(10, 1), key="-LAMDA-")],
+                  [sg.Text('Alpha', size=(15, 1)), sg.In(default_text='4.3', size=(10, 1), key="-ALPHA-")],
+                  [sg.Text('Lamda', size=(15, 1)), sg.In(default_text='3', size=(10, 1), key="-LAMDA-")],
                   [sg.Text('Epsilon', size=(15, 1)), sg.In(default_text='2', size=(10, 1), key="-EPSILON-")],
                   [sg.Text('Seuil d\'arrêt', size=(15, 1)),
-                   sg.In(default_text='0.00003 ', size=(10, 1), key="-SEUILLS-")],
+                   sg.In(default_text='0.00001 ', size=(10, 1), key="-SEUILLS-")],
               ])],
 
               [sg.Frame('Cible', layout=[
@@ -98,7 +98,7 @@ groundtruth = np.array([])
 #Boucle principale du programme
 while True:  # Event Loop
     event, values = window.read()
-
+    print("0")
     #Quitter si on ferme la fenetre
     if event == sg.WIN_CLOSED or event == "Quitter":
         break
@@ -111,7 +111,7 @@ while True:  # Event Loop
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image_gui= cv2.imencode('.png', cv2.resize(image, (323,321)))[1].tobytes()
         window["-IMG_GUI-"].update(data=image_gui)
-
+        window["-GT_GUI-"].update(data=None)
 
     #Un contour d'expert a été séléctioné
     if event == "-FILEGT-":
@@ -124,7 +124,7 @@ while True:  # Event Loop
 
     # Le programme a été lancé
     if event == "-LANCER-":  #
-
+        print("2")
         if image.size != 0:
 
             window.FindElement('-FILE-').Update('')
@@ -145,10 +145,10 @@ while True:  # Event Loop
             img_prep = filters.gaussian_filter(image, gauss)
 
             # Dilatation
-
             kernel = np.ones((ker_dil, ker_dil), np.uint8)
             img_prep = cv2.dilate(img_prep, kernel, iterations=iter_dil)
-
+            # Erosion
+            img_prep = cv2.erode(img_prep, kernel, iterations=2*iter_dil)
             #=========FCM SECTION=============================================
 
             # Initialisation FCM
@@ -161,7 +161,7 @@ while True:  # Event Loop
             image_fcm, phi_0 = FCM.fcm_execute(img_prep, number_of_cluster, fuzzy_coef, seuil, max_iter)
             progress_bar.UpdateBar(2, 4)
 
-            window["-STATUS-"].update('FCM terminé, Appuyez sur Lancer pour demmarrer les Levelset')
+            window["-STATUS-"].update('FCM terminé, Fermez la fenêtre FCM pour demarrer la segmentation Levelset')
 
             #Afficher FCM sur une plot indépendante
             FCM.affichage(img_prep, image_fcm, phi_0)
@@ -172,9 +172,14 @@ while True:  # Event Loop
             progress_bar.UpdateBar(3, 4)
             window["-STATUS-"].update('Levelset en cours d\'execution...')
 
-            # Boost Contrast
+            # ======Pretraitement Levelset======
+
+            # Contrast
             clahe = cv2.createCLAHE(clipLimit=float(values["-CLAHE-"]), tileGridSize=(8, 8))
             img_prep2 = clahe.apply(image)
+
+            #Sharpen
+
 
             # Initialiation des parametres du Levelset
 
@@ -226,8 +231,10 @@ while True:  # Event Loop
                 #Affichage final
                 Levelset.show_segmentation(img_prep2, phi_final, groundtruth_thresh, iou, dice)
 
+
             else :
                 Levelset.show_segmentation(img_prep2, phi_final, None, None,None)
+            print("1")
 
 window.close()
 
