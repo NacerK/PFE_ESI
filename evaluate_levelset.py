@@ -11,6 +11,7 @@ import cv2
 from PIL import Image
 import glob
 import time
+import json
 
 image_list = []
 for filename in glob.glob('dataset/*flair.png'):
@@ -35,7 +36,7 @@ n_images=len(image_list)
 sum_iou = 0
 sum_dice = 0
 sum_time = 0
-
+file_json = open('evaluation_results.json', 'w')
 file = open('evaluation_results.txt', 'a')
 
 for n in range (0, n_images):
@@ -128,6 +129,7 @@ for n in range (0, n_images):
     sum_dice += dice
     sum_time += time_seg
 
+json.dump(results, file_json)
 
 #Sauvegarde de la moyenne des métriques
 print(" Moy IOU=" + str(sum_iou/n_images) + "Moy DICE=" + str(sum_dice/n_images) + "Moy Time=" + str(sum_time/n_images))
