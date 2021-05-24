@@ -12,6 +12,7 @@ import cv2
 from PIL import Image
 import glob
 import time
+import json 
 
 
 #Chargement des images du dataset
@@ -44,6 +45,8 @@ sum_time_kmeans = 0
 
 
 #Lecture du fichier qui contiendra les résultats
+
+file_json = open('fcm_vs_kmeans.json', 'w')
 file = open('fcm_vs_kmeans.txt', 'w')
 
 
@@ -144,10 +147,12 @@ for n in range(0, n_images):
 #Ecriture des résultats dans le fichier
 for elem in results:
     file.write(str(elem)+ "\n")
+json.dump(results, file_json)
 
 file.write("FCM: Moy IOU=" + str(sum_iou_fcm/n_images) + "Moy DICE=" + str(sum_dice_fcm/n_images) + "Moy Time=" + str(sum_time_fcm/n_images) + "\n")
 file.write("Kmeans: Moy IOU=" + str(sum_iou_kmeans/n_images) + "Moy DICE=" + str(sum_dice_kmeans/n_images) + "Moy Time=" + str(sum_time_kmeans/n_images) + "\n")
 
 file.close()
+file_json.close()
 
 print("Evaluation terminée")
