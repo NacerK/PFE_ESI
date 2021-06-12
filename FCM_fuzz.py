@@ -11,7 +11,7 @@ def affichage(image, image_kmeans,phi_0):
 
     ax1 = fig.add_subplot(1, 3, 1)
     ax1.imshow(image, cmap="gray")
-    ax1.set_title('original')
+    ax1.set_title('Pré-traitement')
 
     ax2 = fig.add_subplot(1, 3, 2)
     ax2.imshow(image_kmeans, cmap="gist_rainbow")

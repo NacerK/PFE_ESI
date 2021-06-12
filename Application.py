@@ -39,53 +39,51 @@ col_layout= [   [sg.Frame('IRM à scanner',  layout=[
               ]
 
 layout = [
-          [sg.Text("Segmentation de tumeurs par la méthode level sets", font=("Helvetica", 12), size=(48, 1),
-                   justification=('center'))],
+          [sg.Text("", font=("Times", 12), size=(70, 1), justification=('center'))],
           [sg.Frame('Initialisation' ,  layout=[
 
-              [sg.Frame('Pre-traitement',  layout=[
-                  [sg.Text('CLAHE', size=(15, 1)), sg.In(default_text='3', size=(10, 1), key="-CLAHE-")],
-                  [sg.Text('Filtre Gaussien', size=(15, 1)), sg.In(default_text='2', size=(10, 1), key="-Gauss-")],
-                  [sg.Text('Kernel de dilatation', size=(15, 1)),
+              [sg.Frame('Parametres Pre-traitement',  layout=[
+                  [sg.Text('Filtre Gaussien', size=(20, 1)), sg.In(default_text='2', size=(10, 1), key="-Gauss-")],
+                  [sg.Text('Kernel de fermeture', size=(20, 1)),
                    sg.In(default_text='3', size=(10, 1), key="-KerDil-")],
-                  [sg.Text('Iterations de dilatation', size=(15, 1)),
+                  [sg.Text('Iterations de fermeture', size=(20, 1)),
                    sg.In(default_text='4', size=(10, 1), key="-IterDil-")],
+                [sg.Text('CLAHE cliplimit', size=(20, 1)), sg.In(default_text='3', size=(10, 1), key="-CLAHE-")],
               ])],
 
               [sg.Frame('Parametres FCM', layout=[
 
-                  [sg.Text('Nombre de clusters', size=(15, 1)),
+                  [sg.Text('Nombre de clusters', size=(20, 1)),
                    sg.In(default_text='3', size=(10, 1), key="-NBCLUSTER-")],
-                  [sg.Text('Nombre d\'Iterations maximales', size=(15, 1)),
+                  [sg.Text('Nombre max d\'Iterations', size=(20, 1)),
                    sg.In(default_text='100', size=(10, 1), key="-ITERFCM-")],
-                  [sg.Text('Coefficient de flou', size=(15, 1)),
+                  [sg.Text('Coefficient de flou', size=(20, 1)),
                    sg.In(default_text='2', size=(10, 1), key="-FUZZYCO-")],
-                  [sg.Text('Seuil d\'arrêt', size=(15, 1)),
+                  [sg.Text('Seuil d\'arrêt', size=(20, 1)),
                    sg.In(default_text='0.1', size=(10, 1), key="-SEUILFCM-")]])],
 
               [sg.Frame('Parametres Levelset', layout=[
-                  [sg.Text('Timestep', size=(15, 1)), sg.In(default_text='1', size=(10, 1), key="-TIMESTEP-")],
-                  [sg.Text('Iterations maximale', size=(15, 1)),
+                  [sg.Text('Timestep', size=(20, 1)), sg.In(default_text='1', size=(10, 1), key="-TIMESTEP-")],
+                  [sg.Text('Nombre max d\'iterations', size=(20, 1)),
                    sg.In(default_text='100', size=(10, 1), key="-ITERLS-")],
-                  [sg.Text('Alpha', size=(15, 1)), sg.In(default_text='4.3', size=(10, 1), key="-ALPHA-")],
-                  [sg.Text('Lamda', size=(15, 1)), sg.In(default_text='3', size=(10, 1), key="-LAMDA-")],
-                  [sg.Text('Epsilon', size=(15, 1)), sg.In(default_text='2', size=(10, 1), key="-EPSILON-")],
-                  [sg.Text('Seuil d\'arrêt', size=(15, 1)),
+                  [sg.Text('Alpha', size=(20, 1)), sg.In(default_text='4.3', size=(10, 1), key="-ALPHA-")],
+                  [sg.Text('Lamda', size=(20, 1)), sg.In(default_text='3', size=(10, 1), key="-LAMDA-")],
+                  [sg.Text('Seuil d\'arrêt', size=(20, 1)),
                    sg.In(default_text='0.00001 ', size=(10, 1), key="-SEUILLS-")],
               ])],
 
               [sg.Frame('Cible', layout=[
                   [sg.Text('Image à segmenter')],
-                  [sg.In(size=(25, 1), enable_events=True, key="-FILE-"),
+                  [sg.In(size=(26, 1), enable_events=True, key="-FILE-"),
                    sg.FileBrowse()],
-                  [sg.Text('Segmentation expert (Groundtruth)')],
-                  [sg.In(size=(25, 1), enable_events=True, key="-FILEGT-"),
+                  [sg.Text('Segmentation expert (Optionelle)')],
+                  [sg.In(size=(26, 1), enable_events=True, key="-FILEGT-"),
                    sg.FileBrowse()],
                   [sg.Button('Lancer', key="-LANCER-"), sg.Button('Quitter')]
               ])],
               [sg.Text("Inserez votre image puis appuyez sur Lancer", size=(33, 2), key="-STATUS-")],
               [sg.Text("Progression", font=("Helvetica", 9)),
-               sg.ProgressBar(1, orientation='h', size=(15, 8), key='progress')],
+               sg.ProgressBar(1, orientation='h', size=(15, 15), key='progress')],
 
           ]),  sg.Column(col_layout, justification='up')
            ]]
@@ -173,7 +171,7 @@ while True:  # Event Loop
             window["-STATUS-"].update('Levelset en cours d\'execution...')
 
             # ======Pretraitement Levelset======
-
+            img_prep2=image
             # Contrast
             clahe = cv2.createCLAHE(clipLimit=float(values["-CLAHE-"]), tileGridSize=(8, 8))
             img_prep2 = clahe.apply(image)
@@ -193,7 +191,7 @@ while True:  # Event Loop
                              "-ALPHA-"])  # coefficient of the weighted area term A(phi) -- SHOULD BE POSITIF IF THE CONTOUR MOVES INSIDE /
             # NEGATIF IF THE CONTOUR MOVES OUTSIDE
             # SMALL IF WEAK CONTOUR
-            epsilon = float(values["-EPSILON-"])  # parameter that specifies the width of the DiracDelta function
+            epsilon = float(2)  # parameter that specifies the width of the DiracDelta function
             errortol = float(values["-SEUILLS-"])  # Stop the evolution if (phi_n)-(phi_n-1) < errortol
 
             # Execution de l'algorithme Levelset

@@ -29,7 +29,7 @@ def show_segmentation(img,phi,groundtruth,iou,dice):
         ax1=fig.add_subplot(1,2,2)
         ax1.imshow(groundtruth, interpolation='nearest', cmap="Reds")
         ax1.set_title("Segmentation d'expert")
-        plt.text(240, 60, "IOU= "+str(round(iou,2))+'\nF1 Score= '+str(round(dice,2)), fontdict=None)
+        plt.text(240, 60, "IOU= "+str(round(iou,2))+'\nDICE= '+str(round(dice,2)), fontdict=None)
 
         ax2 = fig.add_subplot(1,2,1)
         ax2.imshow(img, interpolation='nearest', cmap=plt.cm.gray)
